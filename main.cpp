@@ -143,12 +143,15 @@ public:
         QPushButton *checkButton = new QPushButton("Check Solution", this);
         QPushButton *clearButton = new QPushButton("Clear Board", this);
         QPushButton *hintButton = new QPushButton("Get Hint", this);
+        QPushButton *solutionButton = new QPushButton("View Solution", this);
 
         layout->addWidget(loadButton, 10, 0, 1, 2);
         layout->addWidget(checkButton, 10, 2, 1, 2);
         layout->addWidget(clearButton, 10, 4, 1, 2);
         layout->addWidget(hintButton, 10, 6, 1, 2);
+        layout->addWidget(solutionButton, 10, 8, 1, 1);
 
+        connect(solutionButton, &QPushButton::clicked, this, &SudokuGame::viewSolution);
         connect(loadButton, &QPushButton::clicked, this, &SudokuGame::loadPuzzle);
         connect(checkButton, &QPushButton::clicked, this, &SudokuGame::checkSolution);
         connect(clearButton, &QPushButton::clicked, this, &SudokuGame::clearBoard);
@@ -166,7 +169,7 @@ private slots:
                 if (puzzle[row][col] != 0) {
                     grid[row][col]->setText(QString::number(puzzle[row][col]));
                     grid[row][col]->setReadOnly(true);
-                    grid[row][col]->setStyleSheet("background-color: #e0e0e0; border: 1px solid black;");
+                    grid[row][col]->setStyleSheet("background-color: rgba(224, 224, 224, 0.85); border: 1px solid black;");
                 } else {
                     grid[row][col]->clear();
                     grid[row][col]->setReadOnly(false);
@@ -226,12 +229,26 @@ private slots:
                     int correctValue = solvedLevels[level][row][col];
                     if (correctValue != 0) {
                         grid[row][col]->setText(QString::number(correctValue));
-                        grid[row][col]->setStyleSheet("background-color: #ccffcc; border: 1px solid black;");
+                        grid[row][col]->setStyleSheet("background-color: rgba(204, 255, 204, 0.85); border: 1px solid black;");
                         return;
                     }
                 }
             }
         }
+    }
+    void viewSolution() {
+        int level = levelSelect->currentIndex();
+        if (level < 0 || level >= static_cast<int>(solvedLevels.size())) return;
+
+        auto solution = solvedLevels[level];
+        for (int row = 0; row < 9; ++row) {
+            for (int col = 0; col < 9; ++col) {
+                grid[row][col]->setText(QString::number(solution[row][col]));
+                grid[row][col]->setReadOnly(true);
+                grid[row][col]->setStyleSheet("background-color:rgba(204, 255, 204, 0.85); border: 1px solid black;");
+            }}
+        // Optionally, show a message box to inform the user
+        QMessageBox::information(this, "Solution Revealed", "The full solution is now displayed. You can reload the puzzle to try again.");
     }
 
 private:
